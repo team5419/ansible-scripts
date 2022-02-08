@@ -1,0 +1,60 @@
+---
+- name: Pit Computer configuration
+  hosts: pit
+
+  tasks:
+    - name: Install prerequisite software
+      become: true
+      apt:
+        pkg: 
+        - mpv
+        - firefox-esr
+        - wireguard-tools
+        - openresolv
+        cache_valid_time: 86400
+
+    - name: Install MAPSS
+      git:
+        repo: 'https://github.com/team5419/MAPSS.git'
+        dest: ~/Desktop/
+
+#    - name: MAPSS Configuration
+#      copy:
+#        src: pitcomputer/file.ini
+#        dest: ~/Desktop/file.ini
+
+#    - name: Transfer Video Files
+#      copy:
+#        src: pitcomputer/files
+#        dest: ~/Desktop/CompDisplay
+
+#    - name: Transfer Autostart Script
+#      copy:
+#        src: pitcomputer/startup.sh
+#        dest: ~/Desktop/startup.sh
+
+#    - name: Transfer Autostart Configuration
+#      copy:
+#        src: pitcomputer/startup.desktop
+#        dest: ~/.config/autostart/startup.desktop
+
+
+    - name: copy wireguard config file
+      become: true
+      copy:
+        src: wireguard/{{ name }}.conf
+        dest: /etc/wireguard/{{ name }}.conf
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: enable wireguard tunnel
+      become: true
+      systemd:
+        name: wg-quick@{{ name }}
+        state: started
+        enabled: yes
+
+    - name: Set hostname to match inventory
+      hostname:
+        name: '{{ name }}'

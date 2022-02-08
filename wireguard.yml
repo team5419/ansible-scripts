@@ -1,0 +1,32 @@
+---
+- name: Configure WireGuard tunnel to Team Server
+  hosts: octoprint
+
+  tasks:
+    - name: install prerequisite software
+      become: true
+      apt:
+        pkg: 
+        - wireguard-tools
+        - openresolv
+        cache_valid_time: 86400
+
+    - name: copy wireguard config file
+      become: true
+      copy:
+        src: wireguard/{{ name }}.conf
+        dest: /etc/wireguard/{{ name }}.conf
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: enable wireguard tunnel
+      become: true
+      systemd:
+        name: wg-quick@{{ name }}
+        state: started
+        enabled: yes
+
+    - name: Set hostname to match inventory
+      hostname:
+        name: '{{ name }}'
