@@ -11,6 +11,10 @@
         - openresolv
         cache_valid_time: 86400
 
+    - name: Set hostname to match inventory
+      hostname:
+        name: '{{ name }}'
+
     - name: copy wireguard config file
       become: true
       copy:
@@ -26,7 +30,3 @@
         name: wg-quick@{{ name }}
         state: started
         enabled: yes
-
-    - name: Set hostname to match inventory
-      hostname:
-        name: '{{ name }}'

@@ -1,0 +1,2 @@
+[pit]
+team@192.168.86.250 name=5419-Pit-Computer ansible_user=team

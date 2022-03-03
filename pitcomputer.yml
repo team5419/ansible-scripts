@@ -1,49 +1,96 @@
+#todo: Disable keyboard shortcuts
 ---
-- name: Pit Computer configuration
+- name: Pit Computer Configuration
   hosts: pit
 
   tasks:
+    - name: Set hostname to match inventory
+      hostname:
+        name: '{{ name }}'
+
+    - name: Update package lists
+      become: true
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+
     - name: Install prerequisite software
       become: true
       apt:
-        pkg: 
-        - mpv
-        - firefox-esr
-        - wireguard-tools
-        - openresolv
-        cache_valid_time: 86400
+        name: 
+          - i965-va-driver-shaders
+          - mpv
+          - firefox-esr
+          - wireguard-tools
+          - openresolv
+          - git
+          - htop
+          - nmon
+          - intel-gpu-tools
+          - iftop
+
+    - name: Update all packages to their latest version
+      become: true
+      apt:
+        name: "*"
+        state: latest
+
 
     - name: Install MAPSS
       git:
         repo: 'https://github.com/team5419/MAPSS.git'
         dest: ~/Desktop/
 
-#    - name: MAPSS Configuration
-#      copy:
-#        src: pitcomputer/file.ini
-#        dest: ~/Desktop/file.ini
+    - name: Transfer MAPSS Configuration
+      copy:
+        src: pitcomputer/MAPSS/
+        dest: ~/Desktop/
 
-#    - name: Transfer Video Files
-#      copy:
-#        src: pitcomputer/files
-#        dest: ~/Desktop/CompDisplay
+#should use rsync cause large file
+    - name: Transfer Video Files
+      copy:
+        src: pitcomputer/compDisplay/
+        dest: ~/Desktop/
 
-#    - name: Transfer Autostart Script
-#      copy:
-#        src: pitcomputer/startup.sh
-#        dest: ~/Desktop/startup.sh
+    - name: Transfer Autostart Script
+      copy:
+        src: pitcomputer/startup.sh
+        dest: ~/Desktop/
 
-#    - name: Transfer Autostart Configuration
-#      copy:
-#        src: pitcomputer/startup.desktop
-#        dest: ~/.config/autostart/startup.desktop
+    - name: Transfer Autostart Configuration
+      copy:
+        src: pitcomputer/startup.desktop
+        dest: ~/.config/autostart/
+
+    - name: Transfer MPV Configuration
+      copy:
+        src: pitcomputer/mpv.conf
+        dest: ~/.config/mpv/
 
 
-    - name: copy wireguard config file
+    - name: Transfer sshd Configuration
+      become: true
+      copy:
+        src: pitcomputer/sshd_config
+        dest: /etc/ssh/
+
+    - name: Transfer MPV Configuration
+      become: true
+      copy:
+        src: pitcomputer/lightdm.conf
+        dest: /etc/lightdm/
+
+    - name: Transfer grub Configuration
+      become: true
+      copy:
+        src: pitcomputer/grub
+        dest: /etc/default/
+
+    - name: Transfer wireguard config file
       become: true
       copy:
         src: wireguard/{{ name }}.conf
-        dest: /etc/wireguard/{{ name }}.conf
+        dest: /etc/wireguard/team.conf
         owner: root
         group: root
         mode: '0600'
@@ -51,10 +98,6 @@
     - name: enable wireguard tunnel
       become: true
       systemd:
-        name: wg-quick@{{ name }}
+        name: wg-quick@team
         state: started
         enabled: yes
-
-    - name: Set hostname to match inventory
-      hostname:
-        name: '{{ name }}'
