@@ -1,4 +1,4 @@
-#todo: Disable keyboard shortcuts -- figure out keepalive wg
+#todo: Figure out dasbling session saving - autostarting of script still not working-- disable screen locking
 ---
 - name: Pit Computer Configuration
   hosts: pit
@@ -25,6 +25,7 @@
           - openresolv
           - git
           - pip
+          - rsync
           - htop
           - nmon
           - intel-gpu-tools
@@ -36,6 +37,8 @@
         name: "*"
         state: latest
 
+
+#main stuff
     - name: Install MAPSS prerequisite python packages
       pip:
         name:
@@ -47,54 +50,70 @@
     - name: Install MAPSS
       git:
         repo: 'https://github.com/team5419/MAPSS.git'
-        dest: ~/Desktop/MAPSS
+        dest: ~/Desktop/MAPSS/
 
     - name: Transfer MAPSS Configuration
-      copy:
-        src: pitcomputer/MAPSS/
-        dest: ~/Desktop/MAPSS
-
-#should use rsync cause large file
-    - name: Transfer video files
-      copy:
-        src: pitcomputer/compDisplay/
+      synchronize:
+        src: pitcomputer/MAPSS
         dest: ~/Desktop/
 
-    - name: Transfer autostart Script
-      copy:
-        src: pitcomputer/startup.sh
-        dest: ~/Desktop/startup.sh
-        mode: +x
+    - name: Transfer video files
+      synchronize:
+        src: pitcomputer/compDisplay
+        dest: ~/Desktop/
+        delete: true
 
-    - name: Transfer autostart Configuration
-      copy:
-        src: pitcomputer/startup.desktop
-        dest: ~/.config/autostart/startup.desktop
+    - name: Transfer MPV configuration
+      synchronize:
+        src: pitcomputer/xfce4-keyboard-shortcuts.xml
+        dest: ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 
-    - name: Transfer MPV Configuration
-      copy:
-        src: pitcomputer/mpv.conf
-        dest: ~/.config/mpv/mpv.conf
-
-
+#ssh security
     - name: Transfer sshd Configuration
       become: true
       copy:
         src: pitcomputer/sshd_config
         dest: /etc/ssh/sshd_config
 
-    - name: Transfer autologin Configuration
-      become: true
-      copy:
-        src: pitcomputer/lightdm.conf
-        dest: /etc/lightdm/lightdm.conf
-
+# boot stuff
     - name: Transfer grub Configuration
       become: true
       copy:
         src: pitcomputer/grub
         dest: /etc/default/grub
 
+# autostart stuff
+    - name: Transfer autologin Configuration
+      become: true
+      copy:
+        src: pitcomputer/lightdm.conf
+        dest: /etc/lightdm/lightdm.conf
+
+    - name: Transfer autostart script
+      copy:
+        src: pitcomputer/startup.sh
+        dest: ~/Desktop/startup.sh
+        mode: +x
+
+    - name: Transfer autostart configuration
+      synchronize:
+        src: pitcomputer/startup.desktop
+        dest: ~/.config/autostart/startup.desktop
+
+
+# further locking down
+    - name: Transfer shortcut configuration
+      synchronize:
+        src: pitcomputer/mpv.conf
+        dest: ~/.config/mpv/mpv.conf
+
+    - name: Remove lock screen
+      become: true
+      apt:
+        name: light-locker
+        state: absent
+
+#vpn stuffs
     - name: Transfer wireguard config file
       become: true
       copy:
