@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #Set to either 'pit' or 'finder'
-MODE=PIT
+MODE=finder
 
-case MODE in
+case $MODE in
 
   pit)
     mpv /home/team/Desktop/compDisplay/
