@@ -1,4 +1,4 @@
-#todo: Disable keyboard shortcuts
+#todo: Disable keyboard shortcuts -- figure out keepalive wg
 ---
 - name: Pit Computer Configuration
   hosts: pit
@@ -24,6 +24,7 @@
           - wireguard-tools
           - openresolv
           - git
+          - pip
           - htop
           - nmon
           - intel-gpu-tools
@@ -35,56 +36,64 @@
         name: "*"
         state: latest
 
+    - name: Install MAPSS prerequisite python packages
+      pip:
+        name:
+          - flask 
+          - google-api-python-client 
+          - GitPython 
+          - configparser
 
     - name: Install MAPSS
       git:
         repo: 'https://github.com/team5419/MAPSS.git'
-        dest: ~/Desktop/
+        dest: ~/Desktop/MAPSS
 
     - name: Transfer MAPSS Configuration
       copy:
         src: pitcomputer/MAPSS/
-        dest: ~/Desktop/
+        dest: ~/Desktop/MAPSS
 
 #should use rsync cause large file
-    - name: Transfer Video Files
+    - name: Transfer video files
       copy:
         src: pitcomputer/compDisplay/
         dest: ~/Desktop/
 
-    - name: Transfer Autostart Script
+    - name: Transfer autostart Script
       copy:
         src: pitcomputer/startup.sh
-        dest: ~/Desktop/
+        dest: ~/Desktop/startup.sh
+        mode: +x
 
-    - name: Transfer Autostart Configuration
+    - name: Transfer autostart Configuration
       copy:
         src: pitcomputer/startup.desktop
-        dest: ~/.config/autostart/
+        dest: ~/.config/autostart/startup.desktop
 
     - name: Transfer MPV Configuration
       copy:
         src: pitcomputer/mpv.conf
-        dest: ~/.config/mpv/
+        dest: ~/.config/mpv/mpv.conf
 
 
     - name: Transfer sshd Configuration
       become: true
       copy:
         src: pitcomputer/sshd_config
-        dest: /etc/ssh/
+        dest: /etc/ssh/sshd_config
 
-    - name: Transfer MPV Configuration
+    - name: Transfer autologin Configuration
       become: true
       copy:
         src: pitcomputer/lightdm.conf
-        dest: /etc/lightdm/
+        dest: /etc/lightdm/lightdm.conf
 
     - name: Transfer grub Configuration
       become: true
       copy:
         src: pitcomputer/grub
-        dest: /etc/default/
+        dest: /etc/default/grub
 
     - name: Transfer wireguard config file
       become: true
