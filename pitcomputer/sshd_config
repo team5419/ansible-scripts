@@ -107,7 +107,7 @@ PrintMotd no
 #VersionAddendum none
 
 # no default banner path
-Banner /etc/banner
+Banner /etc/issue.net
 
 # Allow client to pass locale environment variables
 AcceptEnv LANG LC_*

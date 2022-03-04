@@ -1,4 +1,4 @@
-#todo: Figure out dasbling session saving - autostarting of script still not working-- disable screen locking
+#todo: Figure out dasbling session saving - autostarting of script still not working-- disable screen locking --- add banner file
 ---
 - name: Pit Computer Configuration
   hosts: pit
@@ -68,12 +68,18 @@
         src: pitcomputer/xfce4-keyboard-shortcuts.xml
         dest: ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 
-#ssh security
+#ssh stuff
     - name: Transfer sshd Configuration
       become: true
       copy:
         src: pitcomputer/sshd_config
         dest: /etc/ssh/sshd_config
+
+    - name: Transfer ssh banner
+      become: true
+      copy:
+        src: pitcomputer/issue.net
+        dest: /etc/issue.net
 
 # boot stuff
     - name: Transfer grub Configuration
@@ -102,10 +108,10 @@
 
 
 # further locking down
-    - name: Transfer shortcut configuration
-      synchronize:
-        src: pitcomputer/mpv.conf
-        dest: ~/.config/mpv/mpv.conf
+#    - name: Transfer shortcut configuration
+#      synchronize:
+#        src: pitcomputer/mpv.conf
+#        dest: ~/.config/mpv/mpv.conf
 
     - name: Remove lock screen
       become: true
