@@ -12,12 +12,11 @@ case $MODE in
   finder)
     cd ~/Desktop/MAPSS/
     python3 /home/team/Desktop/MAPSS/readSheet.py
-    sleep 5
     firefox --kiosk 127.0.0.1:5000
     ;;
 
   scouting)
-    ~/Desktop/chrome-ebogppdcaedoknonikmjoafagggbdndh-Default.desktop
+    /usr/bin/chromium --profile-directory=Default --app-id=ebogppdcaedoknonikmjoafagggbdndh --kiosk
     ;;
 
   *)
