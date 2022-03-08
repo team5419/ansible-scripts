@@ -5,6 +5,7 @@
 
   tasks:
     - name: Set hostname to match inventory
+      become: true
       hostname:
         name: '{{ name }}'
 
@@ -30,6 +31,7 @@
           - nmon
           - intel-gpu-tools
           - iftop
+          - psmisc
 
     - name: Update all packages to their latest version
       become: true
@@ -63,10 +65,16 @@
         dest: ~/Desktop/
         delete: true
 
+    - name: Create MPV directory
+      file:
+        path: ~/.config/mpv
+        state: directory
+
     - name: Transfer MPV configuration
       synchronize:
-        src: pitcomputer/xfce4-keyboard-shortcuts.xml
-        dest: ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+        src: pitcomputer/mpv.conf
+        dest: ~/.config/mpv/mpv.conf
+
 
 #ssh stuff
     - name: Transfer sshd Configuration
@@ -101,17 +109,42 @@
         dest: ~/Desktop/startup.sh
         mode: +x
 
+    - name: Make sure autostart dir exists
+      file:
+        path: "~/.config/autostart"
+        state: directory
+
     - name: Transfer autostart configuration
       synchronize:
         src: pitcomputer/startup.desktop
         dest: ~/.config/autostart/startup.desktop
 
+# Scouting App
+    - name: Install Chromium for PWA support
+      become: true
+      apt:
+        name: chromium
+
+
+# VNC
+    - name: Install VNC Server
+      become: true
+      apt:
+        name: x11vnc
+
+#    - name: enable VNC server
+#      become: true
+#      systemd:
+#        name: unit-name
+#        state: started
+#        enabled: yes
+
 
 # further locking down
-#    - name: Transfer shortcut configuration
-#      synchronize:
-#        src: pitcomputer/mpv.conf
-#        dest: ~/.config/mpv/mpv.conf
+    - name: Transfer shortcut configuration
+      synchronize:
+        src: pitcomputer/xfce4-keyboard-shortcuts.xml
+        dest: ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 
     - name: Remove lock screen
       become: true

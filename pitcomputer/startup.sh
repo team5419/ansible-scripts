@@ -1,23 +1,26 @@
 #!/bin/bash
 
 #Set to either 'pit' or 'finder'
-MODE=finder
+MODE=scouting
 
 case $MODE in
 
   pit)
-    mpv /home/team/Desktop/compDisplay/
+    mpv ~/Desktop/compDisplay/
     ;;
 
   finder)
-    cd /home/team/Desktop/MAPSS/
+    cd ~/Desktop/MAPSS/
     python3 /home/team/Desktop/MAPSS/readSheet.py
-    sleep 3
+    sleep 5
     firefox --kiosk 127.0.0.1:5000
+    ;;
+
+  scouting)
+    ~/Desktop/chrome-ebogppdcaedoknonikmjoafagggbdndh-Default.desktop
     ;;
 
   *)
     echo "mode must be either 'pit' or 'finder'"
     ;;
 esac
-
