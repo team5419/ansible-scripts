@@ -1,0 +1,5 @@
+---
+- name: Sync Octoprint Configurations
+  hosts: octoprint
+
+  tasks:
